@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    container_name: auth_db
+    restart: always
+    environment:
+      POSTGRES_USER: auth_user
+      POSTGRES_PASSWORD: auth_pass
+      POSTGRES_DB: auth_service
+    ports:
+    - "5555:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    container_name: auth_api
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://auth_user:auth_pass@db:5432/auth_service
+      JWT_SECRET: supersecret
+      ACCESS_EXPIRE_MIN: 15
+      REFRESH_EXPIRE_DAYS: 14
+    ports:
+      - "8008:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
