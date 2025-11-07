@@ -4,6 +4,7 @@ from passlib.context import CryptContext
 from uuid import uuid4
 from app.core.config import settings
 
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
@@ -30,6 +31,8 @@ def create_refresh_token(sub: str) -> tuple[str, str, datetime]:
 
 def decode_token(token: str) -> dict:
     try:
+        # ⚙️ очистка токена на случай, если в нём есть "Bearer " или пробелы
+        token = token.replace("Bearer", "").replace("bearer", "").strip()
         return jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALG])
     except JWTError as e:
         raise ValueError(f"Invalid token: {str(e)}")
